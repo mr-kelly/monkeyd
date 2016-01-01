@@ -1,6 +1,8 @@
 # monkeyd
 port forwarding command tool
 
+TODO : Under construct!!
+
 ## 原理
 
 假设一台处于内网的机器ME，想要穿透内网，暴露3389端口到外面，
