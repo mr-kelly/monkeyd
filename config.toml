@@ -3,5 +3,5 @@
 # server setting
 [server]
 type = "server"
-srcPort = 3389
-toPort = 33890
+forwardPort = 3389
+servePort = 33890
