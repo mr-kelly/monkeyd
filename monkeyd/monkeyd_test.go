@@ -5,7 +5,7 @@ import (
 	"net"
 	"testing"
 	"time"
-	//"bytes"
+	"bytes"
 	"strings"
 )
 
@@ -39,16 +39,28 @@ servePort = 33890
 	defer client.Close()
 	testStrArr := []byte("test string")
 	testStr := string(testStrArr)
-	client.Write(testStrArr)
+	//client.Write(testStrArr)
 
-	buf := make([]byte, 11)
+	// forward -> 转发机
+	// little machine in intranet
+    forward, err := net.Dial("tcp", "127.0.0.1:3389")
+    if err != nil {
+         fmt.Println(err.Error())
+         return
+    }
+    defer forward.Close()
+    // 转发机发送, client端收到
+    forward.Write(testStrArr)
+
+    // Client 接受到 foward的消息,经过 server的转发
+	buf := make([]byte, 1024)
 	_, err = client.Read(buf)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	readStr := string(buf)
+    readStr := string(bytes.TrimRight(buf[:], "\x00"))
 	if len(readStr) != len(testStr) {
 		t.Error(fmt.Sprintf("Test string length error, expect: %d, but: %d", len(readStr), len(testStr)))
 	}
@@ -56,7 +68,7 @@ servePort = 33890
 		t.Error(fmt.Sprintf("Test error expect: '%s', but: '%s' ", readStr, testStr))
 	}
 
-	// forward -> 转发机
-	// little machine in intranet
+
+
 
 }

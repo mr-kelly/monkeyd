@@ -25,10 +25,10 @@ func main() {
 	}
 
 	fmt.Printf("Begin read config...%s\n", *configFile)
-	m, err := monkeyd.New(*configFile)
-    if err != nil {
-        fmt.Printf("Error on new monkeyd %s", err.Error())
-        return
-    }
-	m.Run("server")
+	newMonkeyd, err := monkeyd.New(*configFile)
+	if err != nil {
+		fmt.Printf("Error on new monkeyd %s", err.Error())
+		return
+	}
+	newMonkeyd.Run("server")
 }

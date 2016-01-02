@@ -49,7 +49,7 @@ func (this *Monkeyd) Run(sectionStr string) {
 	}
 }
 
-func (this *Monkeyd) ConnHandler(conn net.Conn) {
+func (this *Monkeyd) ServeConnHandler(conn net.Conn) {
 
 	defer conn.Close()
 
@@ -75,36 +75,73 @@ func (this *Monkeyd) ConnHandler(conn net.Conn) {
 /*
 运行服务器模式，传入服务端口，和转发到的端口
 */
-func (this *Monkeyd) RunServer(fowardPort int64, servePort int64) {
+func (this *Monkeyd) RunServer(forwardPort int64, servePort int64) {
 
 	// serve port Conn Channel
 	serveConnChan := make(chan net.Conn)
-
 	go func() {
 		for connChan := range serveConnChan {
-			go this.ConnHandler(connChan)
+            go this.ServeConnHandler(connChan)
 		}
 	}()
 
 	// 同步开始监听端口
-	addr := fmt.Sprintf("0.0.0.0:%d", servePort)
+    forwardAddr := fmt.Sprintf("0.0.0.0:%d", forwardPort)
+	serveAddr := fmt.Sprintf("0.0.0.0:%d", servePort)
 
-	fmt.Println("[RunServer]Server listen: " + addr)
+    fmt.Printf("[RunServer]Server listen, on ServePort: %d, ForwardPort: %d \n", serveAddr, forwardPort)
 
-	serveListener, err := net.Listen("tcp", addr)
-	conn, err := serveListener.Accept()
+    // serve listener
+	serveListener, err := net.Listen("tcp", serveAddr)
 	if err != nil {
-		log.Printf("Error accept: %s", err)
+		log.Printf("Error listen: %s", err)
 		return
 	}
-
-	// 异步不停获取新连接
+	// 异步不停获取新连接 / serve
 	go func() {
 
 		defer serveListener.Close()
 
 		for {
-			serveConnChan <- conn
+            fmt.Printf("!!!")
+            serveConn, err := serveListener.Accept()
+            fmt.Printf(".........")
+            if err != nil {
+                log.Printf("Error accept:%s", err.Error())
+                return
+            }
+			serveConnChan <- serveConn
 		}
 	}()
+
+
+    // forward listener
+	forwardConnChan := make(chan net.Conn)
+    go func() {
+		for connChan := range forwardConnChan {
+            go this.ForwardConnHandler(connChan)
+		}
+    }
+    forwardListener, err := net.Listen("tcp", forwardAddr)
+
+    if err != nil {
+        log.Printf("Error accept forward: %s", err.Error())
+        return
+    }
+    go func() {
+       defer forwardListener.Close()
+
+       for {
+            forwardConn, err := forwardListener.Accept()
+            if err != nil {
+                 log.Printf("Error %s", err.Error())
+                 return
+            }
+            forwardConnChan <- forwardConn
+       }
+    }()
+
+}
+
+func (this *Monkeyd) ForwardConnHandler(connChan chan net.Conn) {
 }
