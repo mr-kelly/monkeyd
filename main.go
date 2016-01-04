@@ -4,22 +4,23 @@ import (
 	"flag"
 	"fmt"
 	"github.com/mr-kelly/monkeyd/monkeyd"
-	"log"
+	"github.com/op/go-logging"
 	"os"
 )
 
+var log = logging.MustGetLogger("monkeyd:main")
+
 func main() {
-	log.SetPrefix("[monkeyd]")
 	configFile := flag.String("config", "config.toml", "`config file path`")
-	fmt.Println("=== Monkeyd v0.1")
-	fmt.Println("=== Port forward tool")
-	fmt.Println("")
+	log.Info("=== Monkeyd v0.1")
+	log.Info("=== Port forward tool")
+	log.Info("")
 
 	flag.Parse()
 
 	if _, err := os.Stat(*configFile); err != nil {
 		if os.IsNotExist(err) {
-			log.Fatalf("Not found config file '%s', please use `-config` tell me the config file path", *configFile)
+			log.Fatalf("Not foune config file '%s', please use `-config` tell me the config file path", *configFile)
 			return
 		}
 	}
