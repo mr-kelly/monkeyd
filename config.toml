@@ -3,5 +3,11 @@
 # server setting
 [server]
 type = "server"
-forwardPort = 3389
-servePort = 33890
+forwardPort = 33891
+clientPort = 33890
+
+[forwarder]
+type = "forwarder"
+inPort = 3389 # which port to expose to outside
+serverAddress = "127.0.0.1:33891" # server address
+
