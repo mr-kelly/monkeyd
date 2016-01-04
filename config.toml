@@ -3,8 +3,8 @@
 # server setting
 [server]
 type = "server"
-forwardPort = 33891
-clientPort = 33890
+forwardPort = 33890
+clientPort = 33891
 
 [forwarder]
 type = "forwarder"
